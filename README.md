@@ -1,0 +1,1 @@
+# hervegash_scam_project
