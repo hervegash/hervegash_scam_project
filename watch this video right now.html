@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 40px 7vw;
+            background: linear-gradient(135deg, #101828, #1d2939);
+        }
+
+        .login-box {
+            width: 380px;
+            background: white;
+            padding: 35px;
+            border-radius: 15px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .login-box h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            color: #101828;
+            font-family: "Brush Script MT", "Segoe Script", "Lucida Handwriting", cursive;
+            font-size: 44px;
+            font-weight: 500;
+            line-height: 1.05;
+            letter-spacing: 0.5px;
+        }
+
+        .login-box p {
+            text-align: center;
+            color: #667085;
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 7px;
+            font-weight: bold;
+            color: #344054;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d0d5dd;
+            border-radius: 8px;
+            outline: none;
+            font-size: 15px;
+        }
+
+        .input-group input:focus {
+            border-color: #2563eb;
+        }
+
+        .show-password {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        button {
+            width: 100%;
+            padding: 13px;
+            border: none;
+            border-radius: 8px;
+            background: #2563eb;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+        }
+
+        #message {
+            margin-top: 18px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .footer {
+            margin-top: 25px;
+            text-align: center;
+            font-size: 13px;
+            color: #98a2b3;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                justify-content: center;
+                padding: 20px;
+            }
+
+            .login-box {
+                width: 100%;
+                max-width: 380px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="login-box">
+    <h1>Welcome Back</h1>
+    <p>Login to continue</p>
+
+    <form id="loginForm">
+        <div class="input-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" placeholder="Enter your instagram account" autocomplete="username" required>
+        </div>
+
+        <div class="input-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" placeholder="Enter your password" required>
+        </div>
+
+        <div class="show-password">
+            <input type="checkbox" id="showPassword">
+            <label for="showPassword">Show password</label>
+        </div>
+
+        <button type="submit">Login</button>
+        <div id="message"></div>
+    </form>
+
+    <div class="footer">School Management System</div>
+</div>
+
+<script type="module">
+    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+
+    const SUPABASE_URL = "https://qijmxvovmksgfejccjed.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_ZLq7TF69MsS8QtD5Vds0Sw_9wbKqwTk";
+
+    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    const loginForm = document.getElementById("loginForm");
+    const usernameInput = document.getElementById("username");
+    const passwordInput = document.getElementById("password");
+    const showPassword = document.getElementById("showPassword");
+    const message = document.getElementById("message");
+    const loginButton = loginForm.querySelector('button[type="submit"]');
+
+    showPassword.addEventListener("change", function () {
+        passwordInput.type = this.checked ? "text" : "password";
+    });
+
+    loginForm.addEventListener("submit", async function(event) {
+        event.preventDefault();
+
+        const username = usernameInput.value.trim().toLowerCase();
+        const password = passwordInput.value;
+
+        // Map allowed usernames to their Supabase Authentication email.
+        // The password is never stored in this HTML file.
+        const accounts = {
+            "hervegash": "hervegash2@gmail.com"
+        };
+
+        const email = accounts[username];
+
+        if (!email) {
+            message.style.color = "red";
+            message.textContent = "Incorrect username or password.";
+            return;
+        }
+
+        message.style.color = "#667085";
+        message.textContent = "Signing in...";
+        loginButton.disabled = true;
+        loginButton.textContent = "Please wait...";
+
+        try {
+            const { data, error } = await supabase.auth.signInWithPassword({
+                email: email,
+                password: password
+            });
+
+            if (error) {
+                message.style.color = "red";
+                message.textContent = "Incorrect username or password.";
+                return;
+            }
+
+            message.style.color = "green";
+            message.textContent = "Login successful!";
+
+            // Change this file name later if your dashboard uses another name.
+            setTimeout(() => {
+                window.location.href = "gash2.html";
+            }, 700);
+
+        } catch (error) {
+            message.style.color = "red";
+            message.textContent = "Could not connect to the login service.";
+        } finally {
+            loginButton.disabled = false;
+            loginButton.textContent = "Login";
+        }
+    });
+</script>
+
+</body>
+</html>
